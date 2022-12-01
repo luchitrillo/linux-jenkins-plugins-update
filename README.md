@@ -1,0 +1,2 @@
+# linux-jenkins-plugins-update
+BASH SCRIPT TO UPDATE JENKINS PLUGINS INTO LINUX SERVER
