@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#JenkinsPluginsVersionUpdate
+
+CREDENTIALS=$(cat your-jenkins-credentials-file)
+JENKINS_CLI="/usr/share/jenkins/jenkins-cli.jar"
+JENKINS_HOST="http://localhost:8080/"
+JENKINS_URL="WWW.YOUR-JNKS-URL-HERE.COM"
+PLUGINS_LIST_UPDATE=$(java -jar $JENKINS_CLI -s $JENKINS_HOST -auth $CREDENTIALS list-plugins | grep -e ')$' | awk '{ print $1 }' | sort);
+
+if [ ! -z "${PLUGINS_LIST_UPDATE}" ]; then
+  echo "";echo "# UPDATEABLE JENKINS PLUGINS:";  echo "";
+  for ELEMENT in ${PLUGINS_LIST_UPDATE[@]}
+  do
+    java -jar $JENKINS_CLI -s $JENKINS_HOST -auth $CREDENTIALS list-plugins | grep $ELEMENT. | head -1
+  done
+  if [ ! -z "${PLUGINS_LIST_UPDATE}" ]; then
+    echo "";echo "# INSTALLING JENKINS PLUGINS UPDATES:";  echo "";
+    java -jar $JENKINS_CLI -s $JENKINS_HOST -auth $CREDENTIALS install-plugin ${PLUGINS_LIST_UPDATE}; echo "";
+    echo "# SAFELY RESTARTING JENKINS"; echo "";
+    java -jar $JENKINS_CLI -s $JENKINS_HOST -auth $CREDENTIALS safe-restart;
+    echo "Check $JENKINS_URL in a few minutes"; echo "";
+  fi
+  sleep 45
+  echo "# UPDATED JENKINS PLUGINS:";  echo "";
+  for ELEMENT in ${PLUGINS_LIST_UPDATE[@]}
+  do
+    java -jar $JENKINS_CLI -s $JENKINS_HOST -auth $CREDENTIALS list-plugins | grep $ELEMENT. | head -1
+  done
+  echo "";
+else
+  echo "";echo "# ALL JENKINS PLUGINS ALREADY UP TO DATE";  echo "";
+fi
